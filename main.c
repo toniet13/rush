@@ -128,7 +128,7 @@ char    *ft_get_wrd(char *nbr, struct str *dict, int nlines)
             return (dict[i].word);
         i++;
     }
-    return ("error");
+    return ("Dict Error\n");
 }
 
 int     ft_len(char *str)
@@ -163,9 +163,12 @@ void    ft_print_three(char *nbr, struct str *dict, int nlines)
         ft_putstr(ft_get_wrd(nbr, dict, nlines));
     else if (ft_len(nbr) == 2 && nbr[0] != '1')
     {
-        temp[0] = nbr[0];
-        temp[1] = '0';
-        ft_putstr(ft_get_wrd(temp, dict, nlines));
+        if(!(nbr[0] == '0'))
+        {
+            temp[0] = nbr[0];
+            temp[1] = '0';
+            ft_putstr(ft_get_wrd(temp, dict, nlines));
+        }     
         temp[0] = nbr[1];
         temp[1] = '\0';
         ft_print_three(temp, dict, nlines);
@@ -292,5 +295,5 @@ int main(int argc, char *argv[])
     dict = (mem_all(dict, nlines));
     dict_init(dict, file);
     close(file);
-    solve("200100", dict, nlines);
+    solve("201101", dict, nlines);
 }
