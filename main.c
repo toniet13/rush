@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 
 struct str
 {
@@ -42,7 +43,7 @@ int ft_n_of_lines(char *file)
     return (count);
 }
 
-struct str *mem_all(struct str* dict, int nlines)
+struct str *mem_alloc(struct str* dict, int nlines)
 {
     int i;
 
@@ -94,14 +95,71 @@ int ft_check_nbr(char *nbr)
             return (0);
         i++;
     }
-    return (i);
+    return (1);
+}
+
+int     ft_len(char *str)
+{
+    int ret;
+
+    ret = 0;
+    while (str[ret] != '\0')
+    {
+        ret++;
+    }
+    return (ret);
+}
+
+char    *ft_rm_chars(char *nbr, int n)
+{
+    int i;
+    char    *ret;
+
+    if(!(ret = (char *)malloc(sizeof(char)* (ft_len(nbr)))))
+        exit(1);
+    i = 0;
+    while(nbr[i + n])
+    {
+        ret[i] = nbr[i + n];
+        i++;
+    }
+    ret[i] = '\0';
+    return (ret);
+}
+
+char	*ft_strcpy(char *dest, char *src)
+{
+	int	iterator;
+
+	iterator = 0;
+	while (src[iterator] != '\0')
+	{
+		dest[iterator] = src[iterator];
+		iterator++;
+	}
+	dest[iterator] = '\0';
+	return (dest);
+}
+
+void	ft_strlcpy(char *dest, char *src, unsigned int size)
+{
+	unsigned int	iterator;
+
+	iterator = 0;
+	while (src[iterator] != '\0' && iterator <= (size - 1))
+	{
+		dest[iterator] = src[iterator];
+		iterator++;
+	}
+	dest[iterator] = '\0';
 }
 
 char    *ft_rm_zero(char *nbr)
 {
-    while(*nbr == 0)
-        nbr++;
-    return (nbr);
+
+    while (*nbr == '0' && ft_len(nbr) > 1)
+        ft_strcpy(nbr , ft_rm_chars(nbr, 1));
+    return (nbr);        
 }
 
 int     ft_strcmp(char *s1, char *s2)
@@ -131,17 +189,6 @@ char    *ft_get_wrd(char *nbr, struct str *dict, int nlines)
     return ("Dict Error\n");
 }
 
-int     ft_len(char *str)
-{
-    int ret;
-
-    ret = 0;
-    while (str[ret] != '\0')
-    {
-        ret++;
-    }
-    return (ret);
-}
 void ft_putstr(char *str)
 {
     while (*str != '\0')
@@ -149,48 +196,73 @@ void ft_putstr(char *str)
         write(1, &*str, 1);
         str++;
     }
+    write(1, " ", 1);
+}
+
+void    ft_print_num(char *nbr, struct str *dict, int nlines);
+
+void    ft_print_two(char *nbr, struct str *dict, int nlines)
+{
+    char temp[3];
+
+    if (nbr[0] == '1')
+        ft_putstr(ft_get_wrd(nbr, dict, nlines));
+    else if (nbr[1] == '0')
+        ft_putstr(ft_get_wrd(nbr, dict, nlines));
+    else
+    {
+        if(nbr[0] != '0')
+        {
+            temp[0] = nbr[0];
+            temp[1] = '0';
+            temp[2]  = '\0';
+            ft_putstr(ft_get_wrd(temp, dict, nlines));
+        }     
+        temp[0] = nbr[1];
+        temp[1] = '\0';
+        ft_print_num(temp, dict, nlines);
+    }
 }
 
 void    ft_print_three(char *nbr, struct str *dict, int nlines)
 {
     char temp[3];
 
-    if (ft_len(nbr) == 1)
-        ft_putstr(ft_get_wrd(nbr, dict, nlines));
-    else if (ft_len(nbr) == 2 && nbr[0] == '1')
-        ft_putstr(ft_get_wrd(nbr, dict, nlines));
-    else if (ft_len(nbr) == 2 && nbr[1] == '0')
-        ft_putstr(ft_get_wrd(nbr, dict, nlines));
-    else if (ft_len(nbr) == 2 && nbr[0] != '1')
+    if (nbr[1] == '0' && nbr[2] == '0')
     {
-        if(!(nbr[0] == '0'))
+        if(nbr[0] != '0')
         {
-            temp[0] = nbr[0];
-            temp[1] = '0';
+            ft_strlcpy(temp, nbr, 1);
             ft_putstr(ft_get_wrd(temp, dict, nlines));
-        }     
-        temp[0] = nbr[1];
-        temp[1] = '\0';
-        ft_print_three(temp, dict, nlines);
-    }
-    else if (ft_len(nbr) == 3 && nbr[1] == '0' && nbr[2] == '0')
-    {
-        temp[0] = nbr[0];
-        temp[1] = '\0';
-        ft_putstr(ft_get_wrd(temp, dict, nlines));
-        ft_putstr(ft_get_wrd("100", dict, nlines));
+            ft_putstr(ft_get_wrd("100", dict, nlines));
+        }
     }
     else
     {
-        temp[0] = nbr[0];
-        temp[1] = '\0';
-        ft_putstr(ft_get_wrd(temp, dict, nlines));
-        ft_putstr(ft_get_wrd("100", dict, nlines));
+        if(nbr[0] != '0')
+        {
+            ft_strlcpy(temp, nbr, 1);
+            ft_putstr(ft_get_wrd(temp, dict, nlines));
+            ft_putstr(ft_get_wrd("100", dict, nlines));
+        }
         temp[0] = nbr[1];
         temp[1] = nbr[2];
         temp[2] = '\0';
-        ft_print_three(temp, dict, nlines);
+        ft_print_num(temp, dict, nlines);
     } 
+}
+
+
+void    ft_print_num(char *nbr, struct str *dict, int nlines)
+{
+    char temp[3];
+
+    if (ft_len(nbr) == 1)
+        ft_putstr(ft_get_wrd(nbr, dict, nlines));
+    else if (ft_len(nbr) == 2)
+        ft_print_two(nbr, dict, nlines);
+    else
+        ft_print_three(nbr, dict, nlines);
 }
 
 char    *ft_build_nbr(int size)
@@ -198,7 +270,8 @@ char    *ft_build_nbr(int size)
     char    *ret;
     int     i;
 
-    ret = (char *)malloc(sizeof(char) * size);
+    if(!(ret = (char *)malloc(sizeof(char) * size)))
+        exit(1);
     i = 1;
     ret[0] = '1';
     while(i < size)
@@ -211,89 +284,120 @@ char    *ft_build_nbr(int size)
     return (ret);
 }
 
-char    *ft_rm_chars(char *nbr, int n)
+void    ft_print_position(char *nbr, struct str *dict, int nlines, int mod)
 {
-    int i;
-    char    *ret;
+        char    *build;
+        int     i;
 
-    ret = (char *)malloc(sizeof(char)* (ft_len(nbr) - n));
-    i = 0;
-    while(nbr[i + n])
-    {
-        ret[i] = nbr[i + n];
-        i++;
-    }
-    ret[i] = '\0';
-    return (ret);
+        if(mod == 0)
+            i = 2;
+        else if(mod == 1)
+            i = 0;
+        else
+            i = 1;
+        build = ft_build_nbr(ft_len(nbr) - i);
+        ft_putstr(ft_get_wrd(build, dict, nlines));
+        free(build);
 }
 
 void solve(char *nbr, struct str *dict, int nlines)
 {
-    char    temp[3];
-    char    *build;
-    if (!(ft_len(nbr) < 4))
+    char    temp[4];
+    if (ft_len(nbr) > 3)
     {
         if (ft_len(nbr) % 3 == 0)
-        {
-            temp[0] = nbr[0];
-            temp[1] = nbr[1];
-            temp[2] = nbr[2];
-            ft_print_three(temp, dict, nlines);
-            build = ft_build_nbr(ft_len(nbr) -2);
-            ft_putstr(ft_get_wrd(build, dict, nlines));
-            free(build);
-            nbr = ft_rm_chars(nbr, 3);
-            solve(nbr, dict, nlines);
-            free(nbr);
-        }
+            ft_strlcpy(temp, nbr, 3);
         else if (ft_len(nbr) % 3 == 2)
-        {
-            temp[0] = nbr[0];
-            temp[1] = nbr[1];
-            temp[2] = '\0';
-            ft_print_three(temp, dict, nlines);
-            build = ft_build_nbr(ft_len(nbr) - 1);
-            ft_putstr(ft_get_wrd(build, dict, nlines));
-            free(build);
-            nbr = ft_rm_chars(nbr, 2);
-            solve(nbr, dict, nlines);
-            free(nbr);
-        }
+            ft_strlcpy(temp, nbr, 2); 
         else
+            ft_strlcpy(temp, nbr, 1);
+        ft_print_num(temp, dict, nlines);
+        if(!(ft_len(temp) == 3 && (temp[0] == '0' && temp[1] == '0' && temp[2] == '0')))
         {
-            temp[0] = nbr[0];
-            temp[1] = '\0';
-            ft_print_three(temp, dict, nlines);
-            build = ft_build_nbr(ft_len(nbr));
-            ft_putstr(ft_get_wrd(build, dict, nlines));
-            free(build);
-            nbr = ft_rm_chars(nbr, 1);
-            solve(nbr, dict, nlines);
-            free(nbr);
+            ft_print_position(nbr, dict, nlines, (ft_len(nbr) % 3));
         }
+        if(ft_len(nbr) % 3 == 0)
+            ft_strcpy(nbr, ft_rm_chars(nbr, 3));
+        else
+            ft_strcpy(nbr, ft_rm_chars(nbr, ft_len(nbr) % 3));
+        solve(nbr, dict, nlines);
     }
     else
-        ft_print_three(nbr, dict, nlines);
+        ft_print_num(nbr, dict, nlines);
 }
 
+int     ft_check_file(char *argv[], int arg)
+{
+    int     file;
+
+    if(arg == 1)
+        file = open("numbers.dict", O_RDONLY);
+    else
+        file = open(argv[1], O_RDONLY);
+    if(file == -1)
+    {
+        write(1, "Dict Error\n", 11);
+        return (0);
+    }
+    return file;
+}
+
+int     ft_check_input(int argc, char *argv[])
+{
+    if(argc == 2)
+    {
+        if(!(ft_check_nbr(argv[1])) || argv[1][0] == '\0')
+            write(1, "Error\n", 6);
+        else
+            return(1);
+    }
+    else if(argc == 3)
+    {
+        if(!(ft_check_nbr(argv[2])) || argv[2][0] == '\0')
+            write(1, "Error\n", 6);
+        else
+            return(2);
+    }
+    else
+        write(1, "Error\n", 6);
+    return (-1);
+}
+
+void    ft_free_struct(struct str *dict, int nlines)
+{
+    int     i;
+    
+    i = 0;
+    while(i < nlines)
+    {
+        free(dict[i].word);
+        free(dict[i].nbr);
+        i++;
+    }
+}
 int main(int argc, char *argv[])
 {
     int file;
     int nlines;
+    char    *nbr;
     struct str *dict;
+    int     arg;
+
+    if(!(nbr = (char *)malloc(sizeof(char) * 50)))
+        return (1);
     nlines = ft_n_of_lines("numbers.dict");
     if (!(dict = (struct str*)malloc(sizeof(*dict) * nlines)))
         return (1);
-   /* if(argc > 3 || argc == 1)
-    {
-        write(1, "Error\n", 6);
+    arg = ft_check_input(argc, argv);
+    if(arg == -1 || (!(file = ft_check_file(argv, arg))))
         return (1);
-    }   */
-    file = open("numbers.dict", O_RDONLY);
-    if(file == -1)
-        return (1);
-    dict = (mem_all(dict, nlines));
+    dict = (mem_alloc(dict, nlines));
     dict_init(dict, file);
     close(file);
-    solve("201101", dict, nlines);
+    ft_strcpy(nbr, ft_rm_zero(argv[arg]));
+    solve(nbr, dict, nlines);
+    free(nbr);
+    ft_free_struct(dict, nlines);
+    free(dict);
+    return (0);
 }
